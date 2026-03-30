@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "baseUrl": ".",
+    "strictNullChecks": false,
+    "noImplicitThis": true,
+    "noEmitOnError": true,
+    "target": "ES5",
+    "lib": ["dom", "es6", "scripthost", "es2017"]
+  },
+  "include": ["src/*", "src/**/*"]
+}

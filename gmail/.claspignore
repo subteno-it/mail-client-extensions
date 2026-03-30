@@ -1,0 +1,13 @@
+.git
+.git/*
+node_modules
+node_modules/**
+node_modules/**/.*/**
+node_modules/**/.*
+
+# ignore all files…
+**/**
+
+# include appscript and build result
+!appsscript.json
+!build/*.js
