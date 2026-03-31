@@ -64,5 +64,3 @@ typings/
 # VS CODE
 .vscode/
 *.code-workspace
-
-dist/
