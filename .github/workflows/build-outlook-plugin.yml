@@ -15,6 +15,9 @@ on:
         description: 'Release tag (e.g. v1.2.0) — leave empty to skip release'
         required: false
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Outlook Plugin
