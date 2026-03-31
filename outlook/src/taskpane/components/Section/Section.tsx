@@ -25,6 +25,8 @@ type SectionAbstractProps = {
     // Can be intercepted to give additional values before creating the record
     // (e.g.: Search a project and add the project ID before creating a task)
     onClickCreate?: (callback: (any?) => void) => void;
+    // Set to true to hide the "+" add button
+    hideAddButton?: boolean;
 
     // Messages
     title: string;
@@ -134,12 +136,14 @@ class Section extends React.Component<SectionAbstractProps, SectionAbstractState
             ? _t(this.props.titleCount, { count: recordCount.toString() })
             : _t(this.props.title);
 
+        const showAddButton = !this.props.hideAddButton && this.props.partner.isAddedToDatabase();
+
         return (
             <CollapseSection
                 className={this.props.className}
                 isCollapsed={this.state.isCollapsed}
                 title={title}
-                hasAddButton={this.props.partner.isAddedToDatabase()}
+                hasAddButton={showAddButton}
                 onAddButtonClick={this.onClickCreate}>
                 {this.getSection()}
             </CollapseSection>

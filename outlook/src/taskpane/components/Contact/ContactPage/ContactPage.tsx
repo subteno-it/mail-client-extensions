@@ -15,6 +15,8 @@ import Lead from '../../../../classes/Lead';
 import HelpdeskTicket from '../../../../classes/HelpdeskTicket';
 import SectionTasks from '../../SectionTasks/SectionTasks';
 import Task from '../../../../classes/Task';
+import SectionSaleOrders from '../../SectionSaleOrders/SectionSaleOrders';
+import SaleOrder from '../../../../classes/SaleOrder';
 
 type ContactPageProps = {
     partner: Partner;
@@ -60,7 +62,7 @@ class ContactPage extends React.Component<ContactPageProps, ContactPageState> {
                 const newPartner =
                     parsed.result && parsed.result.partner && Object.keys(parsed.result.partner).length
                         ? Partner.fromJSON(parsed.result.partner)
-                        : Partner.fromJSON({ email: partner.email, name: partner.name }); // Maybe the partner has been deleted on the Odoo side
+                        : Partner.fromJSON({ email: partner.email, name: partner.name });
 
                 if (parsed.result.leads) {
                     newPartner.leads = parsed.result.leads.map((lead_json) => Lead.fromJSON(lead_json));
@@ -68,7 +70,6 @@ class ContactPage extends React.Component<ContactPageProps, ContactPageState> {
                 if (parsed.result.tasks) {
                     newPartner.tasks = parsed.result.tasks.map((task_json) => Task.fromJSON(task_json));
                 }
-                // undefined should be considered as true for retro-compatibility
                 const canCreateProject = parsed.result.can_create_project !== false;
 
                 if (parsed.result.tickets) {
@@ -76,11 +77,15 @@ class ContactPage extends React.Component<ContactPageProps, ContactPageState> {
                         HelpdeskTicket.fromJSON(ticket_json),
                     );
                 }
+                if (parsed.result.sale_orders !== undefined) {
+                    newPartner.saleOrders = parsed.result.sale_orders.map(
+                        (order_json) => SaleOrder.fromJSON(order_json)
+                    );
+                }
                 if (parsed.result.user_companies) {
                     this.context.setUserCompanies(parsed.result.user_companies);
                 }
 
-                // undefined should be considered as true for retro-compatibility
                 const canCreatePartner = parsed.result.can_create_partner !== false;
                 this.context.setCanCreatePartner(canCreatePartner);
 
@@ -116,6 +121,10 @@ class ContactPage extends React.Component<ContactPageProps, ContactPageState> {
 
     private isHelpdeskInstalled = (): boolean => {
         return this.props.partner.tickets !== undefined;
+    };
+
+    private isSaleInstalled = (): boolean => {
+        return this.state.partner.saleOrders !== undefined;
     };
 
     private propagatePartnerInfoChange = (partner: Partner) => {
@@ -155,6 +164,10 @@ class ContactPage extends React.Component<ContactPageProps, ContactPageState> {
             <SectionTickets partner={this.state.partner} canCreatePartner={this.state.canCreatePartner} />
         );
 
+        const saleOrdersList = this.isSaleInstalled() && (
+            <SectionSaleOrders partner={this.state.partner} canCreatePartner={this.state.canCreatePartner} />
+        );
+
         const onItemClick = this.props.partner.isAddedToDatabase() ? this.viewContact : null;
 
         return (
@@ -169,11 +182,12 @@ class ContactPage extends React.Component<ContactPageProps, ContactPageState> {
                 {leadsList}
                 {tasksList}
                 {ticketsList}
+                {saleOrdersList}
                 <CompanySection
                     partner={this.state.partner}
                     canCreatePartner={this.state.canCreatePartner}
                     onPartnerInfoChanged={this.propagatePartnerInfoChange}
-                    hideCollapseButton={!leadsList && !tasksList && !ticketsList}
+                    hideCollapseButton={!leadsList && !tasksList && !ticketsList && !saleOrdersList}
                 />
             </div>
         );
