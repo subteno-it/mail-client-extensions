@@ -4,8 +4,8 @@
   <Version>2.0.1</Version>
   <ProviderName>Odoo</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="Eurodor Odoo for Outlook"/>
-  <Description DefaultValue="Eurodor custom Odoo plugin for Outlook."/>
+  <DisplayName DefaultValue="Odoo for Outlook"/>
+  <Description DefaultValue="Odoo plugin for Outlook."/>
   <IconUrl DefaultValue="https://github.com/subteno-it/mail-client-extensions/tree/v1/dist//assets/odoo-64.png"/>
   <HighResolutionIconUrl DefaultValue="https://github.com/subteno-it/mail-client-extensions/tree/v1/dist//assets/odoo-128.png"/>
   <SupportUrl DefaultValue="https://www.odoo.com/help"/>
@@ -82,7 +82,7 @@
         <bt:Url id="Taskpane.Url" DefaultValue="https://github.com/subteno-it/mail-client-extensions/tree/v1/dist//taskpane.html"/>
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GroupLabel" DefaultValue="Eurodor Odoo for Outlook"/>
+        <bt:String id="GroupLabel" DefaultValue="Odoo for Outlook"/>
         <bt:String id="TaskpaneButton.Label" DefaultValue="Open contact profile"/>
       </bt:ShortStrings>
       <bt:LongStrings>
@@ -139,7 +139,7 @@
           <bt:Url id="Taskpane.Url" DefaultValue="https://github.com/subteno-it/mail-client-extensions/tree/v1/dist//taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
-          <bt:String id="GroupLabel" DefaultValue="Eurodor Odoo for Outlook"/>
+          <bt:String id="GroupLabel" DefaultValue="Odoo for Outlook"/>
           <bt:String id="TaskpaneButton.Label" DefaultValue="Open sender profile"/>
         </bt:ShortStrings>
         <bt:LongStrings>

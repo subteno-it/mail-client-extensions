@@ -45,7 +45,7 @@ jobs:
           # e.g. odoo.mycompany.com
           # Can also be overridden via workflow_dispatch input above
           # or by setting a PLUGIN_DOMAIN variable in repo Settings > Variables > Actions
-          PLUGIN_DOMAIN: ${{ github.event.inputs.domain || vars.PLUGIN_DOMAIN || 'geometric-peachlike-zenia.ngrok-free.dev' }}
+          PLUGIN_DOMAIN: ${{ github.event.inputs.domain || vars.PLUGIN_DOMAIN || 'github.com/subteno-it/mail-client-extensions/tree/v1/dist/' }}
         run: |
           echo "Building Outlook plugin for domain: $PLUGIN_DOMAIN"
           npm run build -- --env.DOMAIN=$PLUGIN_DOMAIN

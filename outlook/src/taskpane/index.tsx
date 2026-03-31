@@ -10,7 +10,7 @@ initializeIcons();
 
 let isOfficeInitialized = false;
 
-const title = 'Eurodor Odoo for Outlook';
+const title = 'Odoo for Outlook';
 
 const render = (Component) => {
     ReactDOM.render(
