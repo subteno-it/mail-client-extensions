@@ -1,0 +1,118 @@
+name: Build Outlook Plugin
+
+on:
+  push:
+    branches:
+      - v1
+    paths:
+      - 'outlook/**'
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Plugin hosting domain (overrides default)'
+        required: false
+      release_tag:
+        description: 'Release tag (e.g. v1.2.0) — leave empty to skip release'
+        required: false
+
+jobs:
+  build:
+    name: Build Outlook Plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 16
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: outlook/package-lock.json
+
+      - name: Install dependencies
+        working-directory: outlook
+        run: npm install
+
+      - name: Build plugin
+        working-directory: outlook
+        env:
+          # TODO: replace with your production domain before deploying
+          # e.g. odoo.mycompany.com
+          # Can also be overridden via workflow_dispatch input above
+          # or by setting a PLUGIN_DOMAIN variable in repo Settings > Variables > Actions
+          PLUGIN_DOMAIN: ${{ github.event.inputs.domain || vars.PLUGIN_DOMAIN || 'geometric-peachlike-zenia.ngrok-free.dev' }}
+        run: |
+          echo "Building Outlook plugin for domain: $PLUGIN_DOMAIN"
+          npm run build -- --env.DOMAIN=$PLUGIN_DOMAIN
+
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: outlook-plugin-dist
+          path: outlook/dist/
+          retention-days: 30
+
+      - name: Upload manifest.xml artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: manifest
+          path: outlook/dist/manifest.xml
+          retention-days: 30
+
+      - name: Create release archive
+        if: ${{ github.event.inputs.release_tag != '' }}
+        run: |
+          cd outlook/dist
+          zip -r ../../outlook-plugin-${{ github.event.inputs.release_tag }}.zip .
+          cd ../..
+          echo "Archive created: outlook-plugin-${{ github.event.inputs.release_tag }}.zip"
+
+      - name: Create GitHub Release
+        if: ${{ github.event.inputs.release_tag != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          name: Outlook Plugin ${{ github.event.inputs.release_tag }}
+          body: |
+            ## Outlook Plugin ${{ github.event.inputs.release_tag }}
+
+            ### Installation
+            1. Download `manifest.xml` below
+            2. In Outlook Web: `...` > **Get Add-ins** > **My add-ins** > **Add custom add-in** > **From file**
+            3. Upload `manifest.xml`
+
+            ### Deploy plugin assets on your server
+            1. Download `outlook-plugin-${{ github.event.inputs.release_tag }}.zip`
+            2. Extract and copy to your web server:
+               ```bash
+               scp -r dist/* user@your-server:/var/www/outlook-plugin/
+               ```
+            3. Make sure your server serves the folder over HTTPS on the configured domain
+          files: |
+            outlook-plugin-${{ github.event.inputs.release_tag }}.zip
+            outlook/dist/manifest.xml
+          draft: false
+          prerelease: false
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # HOW TO DEPLOY THE BUILT PLUGIN ON YOUR SERVER
+  # ─────────────────────────────────────────────────────────────────────────
+  # 1. Download the artifact "outlook-plugin-dist" from the Actions run
+  # 2. Extract and copy the contents to your web server's static directory:
+  #
+  #      scp -r dist/* user@your-server:/var/www/outlook-plugin/
+  #
+  # 3. Make sure your web server (nginx/apache) serves the folder over HTTPS
+  #    on the domain you set above (PLUGIN_DOMAIN).
+  #
+  # 4. Upload the generated manifest.xml to Outlook Web:
+  #    Outlook > ... > Get Add-ins > My add-ins > Add custom add-in > From file
+  #
+  # 5. To trigger a build manually with a different domain:
+  #    GitHub > Actions > Build Outlook Plugin > Run workflow > enter domain
+  #
+  # 6. To create a release, trigger the workflow manually and fill in release_tag
+  #    e.g. v1.2.0 — this will create a GitHub Release with the zip and manifest
+  # ─────────────────────────────────────────────────────────────────────────
