@@ -2,8 +2,9 @@ import Company from './Company';
 import EnrichmentInfo from './EnrichmentInfo';
 import Lead from './Lead';
 import HelpdeskTicket from './HelpdeskTicket';
-import SaleOrder from './SaleOrder';
 import Task from './Task';
+import SaleOrder from './SaleOrder';
+import PurchaseOrder from './PurchaseOrder';
 
 /***
  * id value for partners which have not been yet added to a Odoo database
@@ -25,6 +26,7 @@ class Partner {
     tasks?: Task[];
     tickets?: HelpdeskTicket[];
     saleOrders?: SaleOrder[];
+    purchaseOrders?: PurchaseOrder[];
     isCompany: boolean;
     canWriteOnPartner: boolean;
 
@@ -43,12 +45,6 @@ class Partner {
         this.canWriteOnPartner = true;
     }
 
-    /***
-     * Creates a partner which is not stored in a Odoo database
-     * @param name
-     * @param email
-     * @param company
-     */
     static createNewPartnerFromEmail = (name: string, email: string): Partner => {
         const partner = new Partner();
         partner.name = name;
@@ -62,21 +58,10 @@ class Partner {
         partner.company = Company.fromJSON(o['company']);
         partner.enrichmentInfo = EnrichmentInfo.fromJSON(o['enrichment_info']);
         partner.isCompany = o['is_company'];
-        // Undefined is considered as True for retro-compatibility
         partner.canWriteOnPartner = o['can_write_on_partner'] !== false;
         return partner;
     }
 
-    /***
-     * Given a list of partners having their name and/or email respectively matching a contact's name and/or email,
-     * this method returns a sorted list of the best matched partners, partners are sorted according to these criteria:
-     * 1) partners with an email and name which both equals the provided contact email and name
-     * 2) partners with an email which is equal to the provided contact email
-     * 3) partners with a name which is equal to the provided contact name
-     * @param email the contact's email
-     * @param name the contact's name
-     * @param partners a list of partners
-     */
     static sortBestMatches(email: string, name: string, partners: Partner[]): Partner[] {
         return partners.sort((p1, p2) => {
             if (p1.email === email && (p2.email !== email || p1.name == name)) {
@@ -87,23 +72,12 @@ class Partner {
         });
     }
 
-    /***
-     * return a string containing the two initials of a display name, we return the initials of the first and the
-     * last "words" composing the displayName, words having a length < 2 and which contain non alphabetical characters are
-     * not taken into account.
-     */
     getInitials(): string {
-        //get all words having a length > 2 and containing only letters
         const rgx = new RegExp(/(\p{L}{1})\p{L}+/, 'gu');
-
         const initials = [...this.name.matchAll(rgx)] || [];
-
         return ((initials.shift()?.[1] || '') + (initials.pop()?.[1] || '')).toUpperCase();
     }
 
-    /***
-     * Returns True if the partner exists in the Odoo database, False otherwise
-     */
     isAddedToDatabase(): boolean {
         return this.id && this.id > 0;
     }
